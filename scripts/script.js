@@ -1,7 +1,6 @@
 const Scene = require('Scene');
 const FaceTracking = require('FaceTracking');
 const Reactive = require('Reactive');
-const Diagnostics = require('Diagnostics');
 const Materials = require('Materials');
 const Data = require('./questions');
 
@@ -90,8 +89,6 @@ function selectQuestions(questions, len) {
       var nextQuestion = session.goToNextQuestion();
 
       if (session.isEnd()) {
-        Diagnostics.log("Your score is " + session.score);
-  
         leftMonitor.unsubscribe();
         rightMonitor.unsubscribe();
         canvasQuiz.hidden = true;
@@ -121,8 +118,6 @@ function selectQuestions(questions, len) {
       var nextQuestion = session.goToNextQuestion();
 
       if (session.isEnd()) {
-        Diagnostics.log("Your score is " + session.score);
-  
         leftMonitor.unsubscribe();
         rightMonitor.unsubscribe();
         canvasQuiz.hidden = true;
@@ -170,8 +165,3 @@ function selectQuestions(questions, len) {
   // show first item
   renderQuestion(session.currentQuestion());
 })(); 
-
-// TODO:
-// 1. Find a way to monitor a score
-// 2. Find a way to hide/show elements
-// 3. Find a way to 
