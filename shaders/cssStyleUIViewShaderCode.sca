@@ -1,0 +1,50 @@
+//==============================================================================
+// CSS Style UI View Material
+// A template material that can be used to draw an rectangle view with common CSS styles
+//==============================================================================
+
+// Computes signed distance to a rounded rectangle, positioned at (0, 0).
+// Dimensions are from (-halfSize.x, -halfSize.y) to (halfSize.x, halfSize.y).
+// rad is the corner radii, clockwise starting from left top: (lt, rt, rb, lb).
+float roundRectangleSdf(vec2 pt, vec2 halfSize, vec4 radii) {
+  // select the radius according to the quadrant the point is in
+  vec2 s = step(pt, vec2(0.0));
+  float r = mix(
+    mix(radii.z, radii.y, s.y),
+    mix(radii.w, radii.x, s.y),
+    s.x);
+  r = min(min(r, halfSize.x), halfSize.y);
+  vec2 innerHalfSize = halfSize - r;
+  vec2 d = abs(pt) - innerHalfSize;
+  return min(max(d.x, d.y), 0.0) + length(max(d, 0.0)) - r;
+}
+
+// Mixes two colors with round rectangle sdf
+vec4 mixRoundRectangleSdfLayer(vec2 pt, vec2 halfSize, vec4 radii, vec4 foregroundColor, vec4 backgroundColor) {
+  float d = roundRectangleSdf(pt, halfSize, radii);
+  float e = fwidth(d);
+  return mix(foregroundColor, backgroundColor, smoothstep(-e, +e, d));
+}
+
+// @param[default=#FFFFFFFF] backgroundColor Background Color
+// @param[default=#000000FF] borderColor Border Color
+// @param[default=1.0] borderWidth Border Width(unit: pixel)
+// @param[default=vec4(5.0, 5.0, 5.0, 5.0)] borderRadius Border Radius(unit: pixel)
+// @return patch output
+vec4 main(vec4 backgroundColor,
+          vec4 borderColor,
+          float borderWidth,
+          vec4 borderRadius,
+          function<vec4(vec2)> backgroundTexture) {
+  vec2 size = abs(std::getBoundingBoxMax().xy - std::getBoundingBoxMin().xy);
+  vec2 uv = fragment(std::getVertexTexCoord());
+  vec4 backgroundTextureColor = fallback(backgroundTexture(uv), backgroundColor);
+
+  vec4 layer1Color = mix(borderColor, backgroundTextureColor, step(borderWidth, 0.0));
+  vec4 color = mixRoundRectangleSdfLayer((uv - 0.5) * size, size * 0.5, borderRadius, layer1Color, layer1Color.xyz0);
+
+  if (borderWidth > 0.0) {
+   color = mixRoundRectangleSdfLayer((uv - 0.5) * size, size * 0.5 - borderWidth, borderRadius - borderWidth, backgroundTextureColor, color);
+  }
+  return color;
+}
