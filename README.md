@@ -11,6 +11,7 @@ Yamif Quiz is an Instagram quiz filter designed to add some fun to a wedding rec
 3. Run the project
 
 The filter should look something like this.
+
 ![Yamif Quiz Demo](./assets/demo.gif)
 
 ## Updating the Questions
